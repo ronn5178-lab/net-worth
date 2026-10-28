@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ทรัพย์สินสุทธิ</title>
+<meta name="theme-color" content="#ECEEF1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#ECEEF1; --card:#fff; --ink:#111827; --ink2:#374151; --muted:#6B7280; --faint:#9CA3AF; --line:#F1F2F4;
+  --green:#16A34A; --green-bg:#F0FDF4; --red:#DC2626; --red-bg:#FEF2F2;
+  --orange:#EA580C; --orange-bg:#FFF7ED; --blue:#2563EB; --blue-bg:#EFF6FF;
+  --acc1:#4F8A8B; --acc2:#2F5F6B; --nav:#1C1C1E; --navbtn:#2C2C2E;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans Thai','Leelawadee UI',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;font-size:14px}
+button,input,select{font:inherit;color:inherit}
+.app{max-width:1180px;margin:0 auto;padding:20px 16px 120px}
+.num{font-variant-numeric:tabular-nums}
+
+header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:700;
+  background:linear-gradient(135deg,var(--acc1),var(--acc2));color:#fff;flex:none}
+header h1{font-size:18px;margin:0;font-weight:600}
+header .sub{color:var(--muted);font-size:12.5px}
+.grow{flex:1;min-width:0}
+.hright{display:flex;gap:8px;align-items:center}
+.tabs{display:inline-flex;background:#E0E3E8;border-radius:12px;padding:3px}
+.tabs button{border:0;background:none;padding:6px 14px;border-radius:9px;cursor:pointer;color:var(--muted);font-size:13px}
+.tabs button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+@media (max-width:600px){.hright{width:100%;flex-wrap:wrap}.tabs{flex:1 1 100%}.tabs button{flex:1}.hright .pill{flex:1}.dbar h2{flex-basis:100%}}
+.pill{appearance:none;border:1px solid #E2E4E8;background:#fff;border-radius:999px;
+  padding:7px 32px 7px 14px;font-size:13px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23111' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.add{border:1px solid #E2E4E8;background:#fff;border-radius:999px;padding:4px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.add:hover{background:#F7F8FA}
+a.add{color:inherit;text-decoration:none}
+.hright a.add{padding:7px 14px;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.up{color:var(--green)} .down{color:var(--red)}
+
+.card{background:var(--card);border:1px solid #E6E8EC;border-radius:16px;
+  padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(17,24,39,.04);position:relative}
+.card h2{font-size:15px;font-weight:600;margin:0}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.meta{color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.6}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.empty{color:var(--faint);text-align:center;padding:18px 0 6px;font-size:13px}
+
+/* ---- overview (same layout as the debt-fund app: KPI strip, then masonry cards) */
+.kpis{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);gap:12px;
+  overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
+.kpis::-webkit-scrollbar{display:none}
+.kpi{scroll-snap-align:start;border:1.5px solid;border-radius:14px;padding:12px 14px}
+.kpi .t{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink2)}
+.kpi .v{font-size:22px;font-weight:700;margin:6px 0 4px;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:11.5px;color:var(--muted)}
+.kpi.orange{border-color:#FDBA74;background:var(--orange-bg)} .kpi.orange .v{color:var(--orange)}
+.kpi.blue{border-color:#93C5FD;background:var(--blue-bg)} .kpi.blue .v{color:var(--blue)}
+.kpi.green{border-color:#86EFAC;background:var(--green-bg)} .kpi.green .v{color:var(--green)}
+.kpi.red{border-color:#FCA5A5;background:var(--red-bg)} .kpi.red .v{color:var(--red)}
+.cols{columns:3 340px;column-gap:16px}
+.cols .card{break-inside:avoid}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid #E5E7EB;border-radius:8px;
+  padding:2px 8px;font-size:11.5px;color:var(--ink2);background:#fff;white-space:nowrap;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.big{font-size:26px;font-weight:700;letter-spacing:-.4px;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+
+svg text{font-family:inherit}
+.chart{position:relative;margin-top:10px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.seg{cursor:pointer;transition:stroke-width .15s}
+.seg:hover{stroke-width:30}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #E5E7EB;border-radius:8px;
+  padding:5px 9px;font-size:12px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.08);
+  transform:translate(-50%,calc(-100% - 8px));opacity:0;transition:opacity .12s;z-index:5}
+.tip b{display:block;font-size:13px} .tip span{color:var(--muted);font-size:11px}
+
+.cat{margin-top:12px}
+.cat .row{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.cat .row .n{flex:1;min-width:0} .cat .row .n small{display:block;font-size:11px}
+.cat .pct{color:var(--muted);font-size:12px;width:48px;text-align:right}
+.cat .amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cat i{width:10px;height:10px;border-radius:3px;flex:none}
+.track{height:6px;border-radius:99px;background:#F1F2F4;margin-top:6px;overflow:hidden}
+.track>div{height:100%;border-radius:99px}
+
+.tx{display:flex;align-items:center;gap:10px;border:1px solid #ECEEF1;border-radius:12px;padding:10px;margin-top:10px;
+  width:100%;background:#fff;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.tx:hover{border-color:#D1D5DB;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.tx .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:700;flex:none}
+.tx .n{flex:1;min-width:0}
+.tx .n b{display:block;font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .n span{color:var(--muted);font-size:11.5px}
+.tx .r{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.tx .r b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ---- detail */
+.tbl{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-weight:500;color:var(--muted);cursor:pointer}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff;cursor:default}
+td.sel,th.sel{background:var(--green-bg);color:var(--ink)}
+th.sel{font-weight:600}
+tr.tot td{font-weight:700;border-bottom:0}
+.dbar{display:flex;align-items:center;gap:8px;margin:20px 2px 10px;flex-wrap:wrap}
+.dbar h2{font-size:15px;margin:0;font-weight:600}
+.bcols{columns:2 360px;column-gap:16px}
+details.card{break-inside:avoid;padding:0}
+details summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px}
+details summary::-webkit-details-marker{display:none}
+details summary .chev{transition:transform .2s;color:var(--faint);font-size:12px}
+details[open] summary .chev{transform:rotate(90deg)}
+details summary .n{flex:1;min-width:0;font-weight:600} details summary .n small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+details summary b{text-align:right} details summary b small{display:block;font-weight:400;font-size:11px}
+details .body{padding:0 10px 10px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 6px;border-top:1px dashed #ECEEF1;font-size:13.5px;
+  width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;cursor:pointer;border-radius:6px}
+.kv:hover{background:#F7F8FA}
+.kv b{font-weight:600;white-space:nowrap;text-align:right}
+.kv small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.note{font-size:11.5px;color:var(--muted);background:#F7F8FA;border-radius:10px;padding:8px 10px;margin-top:12px;line-height:1.55}
+
+nav{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;
+  background:var(--nav);border-radius:22px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:20}
+nav button{width:48px;height:48px;border:0;border-radius:14px;background:var(--navbtn);color:#fff;
+  display:grid;place-items:center;cursor:pointer;transition:transform .15s,background .2s}
+nav button:hover{transform:translateY(-2px)}
+nav button.on{background:linear-gradient(135deg,var(--acc1),var(--acc2))}
+nav button.plus{background:transparent}
+nav button.plus span{width:36px;height:36px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center}
+nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+dialog{border:0;border-radius:20px;padding:20px;max-width:440px;width:calc(100% - 32px);
+  box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(17,24,39,.45)}
+dialog h3{margin:0 0 14px;font-size:16px}
+dialog label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:10px}
+dialog input,dialog select{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid #E2E4E8;
+  border-radius:10px;background:#fff;font-size:14px;color:var(--ink)}
+dialog input:focus,dialog select:focus{outline:2px solid #4F8A8B55;border-color:var(--acc1)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns{display:flex;gap:8px;align-items:center;margin-top:14px}
+.btn{border:0;border-radius:12px;padding:10px 16px;cursor:pointer;font-size:14px}
+.btn.primary{background:var(--nav);color:#fff}
+.btn.ghost{background:#F3F4F6}
+.btn.danger{background:none;color:var(--red);padding-left:4px}
+.hint{font-size:11.5px;color:var(--faint);margin-top:-6px;margin-bottom:10px}
+.wgrid{display:grid;grid-template-columns:1fr 140px;gap:6px 10px;align-items:center;margin-bottom:6px}
+.wgrid span{font-size:13px} .wgrid small{color:var(--faint);font-size:11px}
+.wgrid input{margin:0;padding:6px 9px;text-align:right;font-variant-numeric:tabular-nums}
+.wgrid h4{grid-column:1/-1;margin:10px 0 0;font-size:12.5px;color:var(--muted);font-weight:600}
+
+.toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-80px);background:var(--nav);color:#fff;
+  padding:9px 16px;border-radius:999px;font-size:13px;transition:transform .25s;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{transform:translate(-50%,0)}
+.toast.err{background:var(--red)}
+.src{text-align:center;color:var(--faint);font-size:11.5px;margin-top:16px}
+.banner{background:var(--red-bg);border:1px solid #FCA5A5;color:var(--red);border-radius:12px;padding:12px;margin-bottom:16px;display:none;line-height:1.6}
+.banner.warn{background:#FFFBEB;border-color:#FCD34D;color:#92400E}
+.banner.info{background:#fff;border-color:#E6E8EC;color:var(--ink)}
+.banner .add{margin:6px 6px 0 0}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid #E2E4E8;background:#fff;cursor:pointer;font-size:16px;flex:none}
+.wide{width:100%;margin-top:8px}
+.box{background:#F7F8FA;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app" id="top">
+  <div class="banner" id="banner"></div>
+  <header>
+    <div class="logo">฿</div>
+    <div class="grow">
+      <h1>ทรัพย์สินสุทธิ</h1>
+      <div class="sub" id="sub">กำลังโหลด…</div>
+    </div>
+    <div class="hright">
+      <div class="tabs" id="tabs"><button data-view="overview">ภาพรวม</button><button data-view="detail">รายละเอียด</button></div>
+      <select class="pill" id="snapSel" aria-label="เลือกรอบ"></select>
+      <a class="add" id="shareBtn" href="summary.html" title="สรุปหน้าเดียว ส่งเป็นรูปหรือ PDF">📤 สรุป</a>
+      <button class="icon-btn" id="dataBtn" title="สำรอง / กู้คืนข้อมูล">💾</button>
+    </div>
+  </header>
+
+  <!-- ภาพรวม: การ์ดตัวเลขหลัก แล้วการ์ดกราฟ สัดส่วน ธนาคาร หนี้ และทรัพย์สินอื่น (แบบเดียวกับแอปกองทุนปลดหนี้) -->
+  <section id="vOverview">
+    <div class="kpis" id="kpis"></div>
+    <div class="cols">
+      <div class="card">
+        <div class="head"><h2>ทรัพย์สินสุทธิแต่ละรอบ</h2><button class="add" id="snapNew">＋ จดยอดรอบใหม่</button></div>
+        <div class="meta">แตะแท่งกราฟเพื่อเลือกรอบ</div>
+        <div class="chart" id="bars"></div>
+        <div class="foot"><div class="legend"><span><i style="background:var(--green)"></i>ยอดสุทธิ</span></div><span id="trendFoot"></span></div>
+        <div class="note" id="hNote" hidden></div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h2>สัดส่วนทรัพย์สิน</h2><span class="chip" id="catSnap"></span></div>
+        <div class="meta" id="catMeta"></div>
+        <div class="chart" id="donut" style="max-width:250px;margin:10px auto 0"></div>
+        <div id="catList"></div>
+        <div class="foot"><span id="catFoot"></span></div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h2>ตามธนาคาร / กลุ่ม</h2></div>
+        <div class="meta">แตะเพื่อดูรายบัญชี</div>
+        <div id="bankSum"></div>
+      </div>
+
+      <div class="card" id="debtCard">
+        <div class="head"><h2>หนี้สิน</h2></div>
+        <div class="big" id="debtTotal" style="color:var(--red)"></div>
+        <div class="meta" id="debtMeta"></div>
+        <div id="debtList"></div>
+      </div>
+
+      <div class="card" id="otherCard">
+        <div class="head"><h2>ทรัพย์สินอื่น</h2></div>
+        <div class="big" id="otherTotal" style="color:var(--orange)"></div>
+        <div class="meta" id="otherMeta"></div>
+        <div id="otherList"></div>
+        <div class="note">ไม่รวมในยอดสุทธิ (คอนโด ที่ดิน ประกัน ฯลฯ)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- รายละเอียด: ตารางทุกรอบ และรายบัญชีแยกธนาคาร -->
+  <section id="vDetail" hidden>
+    <div class="card">
+      <div class="head"><h2>ยอดแต่ละรอบ</h2><span class="meta">แตะหัวคอลัมน์เพื่อเลือกรอบ</span></div>
+      <div class="tbl" id="hist"></div>
+    </div>
+    <div class="dbar">
+      <h2 class="grow">รายบัญชี <span class="meta" id="dMeta"></span></h2>
+      <button class="add" id="expandAll"></button>
+      <button class="add" id="snapEdit">✏️ แก้ยอดรอบนี้</button>
+      <button class="add" id="accNew">＋ บัญชี</button>
+      <button class="add" id="csvAll">⬇️ CSV</button>
+    </div>
+    <div class="bcols" id="bankCards"></div>
+    <div class="note">ยอดสุทธิ = สด + หุ้น/กองทุน + สลาก + ออมบริษัท − หนี้สิน • "ทรัพย์สินอื่น" (คอนโด ที่ดิน ประกัน ฯลฯ) ไม่รวมในยอดสุทธิ •
+      WESOP = จำนวนหน่วย × ราคาของรอบ • แตะบัญชีเพื่อแก้ชื่อ/ประเภท</div>
+  </section>
+  <div class="src" id="src"></div>
+</div>
+
+<nav aria-label="เมนู">
+  <button data-view="overview" title="ภาพรวม"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button>
+  <button class="plus" id="quickAdd" title="จดยอดรอบใหม่"><span><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></button>
+  <button data-view="detail" title="รายละเอียด"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+</nav>
+
+<dialog id="snapDlg">
+  <form method="dialog" id="snapForm">
+    <h3 id="snapTitle"></h3>
+    <div class="two">
+      <label>วันที่จดยอด<input name="date" type="date"></label>
+      <label>ราคา WESOP ต่อหน่วย<input name="price" inputmode="decimal"></label>
+    </div>
+    <div class="hint">เว้นว่าง = ไม่มีบัญชีนี้ในรอบนั้น • หนี้สินใส่เป็นยอดบวก • ใส่สูตรได้ เช่น 1000+250</div>
+    <div class="wgrid" id="snapGrid"></div>
+    <label>โน้ต<input name="note" autocomplete="off"></label>
+    <div class="btns">
+      <button type="button" class="btn danger" id="snapDel">ลบรอบนี้</button><span class="grow"></span>
+      <button type="button" class="btn ghost" data-close>ยกเลิก</button>
+      <button value="ok" class="btn primary">บันทึก</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="accDlg">
+  <form method="dialog" id="accForm">
+    <h3 id="accTitle"></h3>
+    <div class="two">
+      <label>ธนาคาร / กลุ่ม<input name="bank" autocomplete="off" placeholder="เช่น กสิกร"></label>
+      <label>ชื่อบัญชี<input name="name" autocomplete="off" placeholder="เช่น บัญชี 3"></label>
+    </div>
+    <label>ประเภท<select name="kind"></select></label>
+    <label>หมายเหตุ<input name="note" autocomplete="off"></label>
+    <label style="display:flex;gap:8px;align-items:center"><input name="unit" type="checkbox" style="width:auto;margin:0"> จดเป็นจำนวนหน่วย (คูณราคา WESOP ของรอบ)</label>
+    <div class="btns">
+      <button type="button" class="btn danger" id="accDel">ลบบัญชี</button><span class="grow"></span>
+      <button type="button" class="btn ghost" data-close>ยกเลิก</button>
+      <button value="ok" class="btn primary">บันทึก</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dataDlg">
+  <h3>💾 ข้อมูล & สำรอง</h3>
+  <div class="box" id="dataInfo"></div>
+  <button type="button" class="btn primary wide" id="backupBtn">⬇️ สำรองข้อมูล (ไฟล์ .json)</button>
+  <button type="button" class="btn ghost wide" id="restoreBtn">📂 กู้คืน / นำเข้าจากไฟล์สำรอง</button>
+  <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+  <div class="meta" style="margin-top:10px;line-height:1.6">เก็บไฟล์สำรองไว้ใน Google Drive หรือ LINE Keep ถ้าเปลี่ยนเครื่องหรือข้อมูลหาย ให้กู้คืนจากไฟล์นี้ การกู้คืนจะแทนที่ข้อมูลทั้งหมดในเครื่องนี้</div>
+  <div class="btns"><span class="grow"></span><button type="button" class="btn ghost" data-close>ปิด</button></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="calc.js"></script>
+<script src="store.js"></script>
+<script>
+let DB = null, snapIdx = -1, view = 'overview';  // snapIdx -1 = latest snapshot
+const openBanks = new Set();
+
+const $ = id => document.getElementById(id);
+const store = (k, v) => { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) {} return v; };
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const short = n => Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M'
+  : Math.abs(n) >= 1000 ? Math.round(n / 1000) + 'K' : String(Math.round(n));
+const W = () => DB.worth;
+const curIdx = () => { const n = W().snaps.length; return snapIdx < 0 || snapIdx >= n ? n - 1 : snapIdx; };
+// ▲/▼ amount; for debt a rise is bad
+const chg = (d, good = true) => Math.abs(d) < 0.5 ? '' :
+  `<span class="${(d > 0) === good ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${baht(Math.abs(d))}</span>`;
+
+function toast(msg, err) {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
+  clearTimeout(t._h); t._h = setTimeout(() => t.className = 'toast', err ? 4000 : 1600);
+}
+
+async function load() {
+  try {
+    DB = await Store.load();
+  } catch (e) {
+    banner('', 'โหลดข้อมูลไม่ได้: ' + esc(e.message) + (Store.mode === 'server' ? ' (ตรวจว่ายังรัน app.py อยู่)' : ''));
+    $('sub').textContent = '';
+    return;
+  }
+  $('src').textContent = Store.mode === 'server' ? 'ข้อมูลเก็บใน data.json • สำรองอัตโนมัติทุกครั้งที่บันทึก (backups/)'
+    : 'ข้อมูลเก็บในเครื่องนี้เท่านั้น • กด 💾 เพื่อสำรอง';
+  if (Store.mode === 'local') {
+    Store.persist();
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  if (!DB) {
+    DB = Store.empty();
+    banner('info', `<b>ยินดีต้อนรับ 👋</b> ข้อมูลจะเก็บไว้ในเครื่องนี้เท่านั้น ไม่ส่งไปที่ไหน<br>
+      <button class="add" data-act="restore">📂 นำเข้าไฟล์สำรองจากคอม</button>
+      <span class="meta">หรือเพิ่มบัญชีที่หน้า "รายละเอียด" แล้วกด ＋</span>`);
+  } else backupReminder();
+  const k = store('nw-snap'); if (k != null) snapIdx = +k;
+  view = store('nw-view') === 'detail' ? 'detail' : 'overview';
+  render();
+}
+
+async function commit(msg) {
+  W().snaps.sort((a, b) => a.date.localeCompare(b.date));
+  render();
+  try {
+    await Store.save(DB);
+    toast((msg || 'บันทึกแล้ว') + ' ✓');
+    backupReminder();
+  } catch (e) {
+    toast('บันทึกไม่สำเร็จ: ' + e.message + (Store.mode === 'server' ? ' (ตรวจว่ายังรัน app.py อยู่)' : ''), true);
+  }
+}
+
+function banner(kind, html) {
+  const b = $('banner');
+  b.className = 'banner' + (kind ? ' ' + kind : '');
+  b.innerHTML = html;
+  b.style.display = html ? 'block' : 'none';
+}
+
+// on the phone the data exists only on this device, so nag when the last backup is old
+function backupReminder() {
+  if (Store.mode !== 'local' || !W().snaps.length) return banner('', '');
+  const last = Store.lastBackup(), days = last ? Math.floor((Date.now() - last) / 864e5) : null;
+  if (days != null && days < 30) return banner('', '');
+  banner('warn', `⚠️ ${days == null ? 'ยังไม่เคยสำรองข้อมูล' : `ไม่ได้สำรองข้อมูลมา ${days} วัน`} ถ้าล้างข้อมูล Chrome หรือเปลี่ยนเครื่อง ข้อมูลจะหาย
+    <br><button class="add" data-act="backup">⬇️ สำรองเลย</button>`);
+}
+
+function openData() {
+  const last = Store.lastBackup();
+  $('dataInfo').innerHTML = `ที่เก็บข้อมูล: <b>${Store.mode === 'server' ? 'ในคอม (data.json)' : 'ในเครื่องนี้'}</b><br>
+    จดไว้ ${W().snaps.length} รอบ • ${W().accounts.length} บัญชี<br>
+    สำรองล่าสุดจากเครื่องนี้: <b>${last ? last.toLocaleDateString('th-TH-u-ca-gregory', {day: 'numeric', month: 'short', year: 'numeric'}) : 'ยังไม่เคย'}</b>`;
+  $('dataDlg').showModal();
+}
+
+async function doBackup() {
+  try {
+    const name = await Store.backup(DB);
+    toast('สำรองแล้ว: ' + name);
+    backupReminder();
+    if ($('dataDlg').open) openData();
+  } catch (e) { if (e.name !== 'AbortError') toast('สำรองไม่สำเร็จ: ' + e.message, true); }
+}
+
+async function doRestore(file) {
+  try {
+    const db = await Store.readBackup(file), s = db.worth.snaps, n = s.length;
+    const range = n ? snapLabel(s[0].date) + ' – ' + snapLabel(s[n - 1].date) : 'ไม่มีรอบ';
+    if (W().snaps.length && !confirm(`แทนที่ข้อมูลทั้งหมดในเครื่องนี้ด้วยไฟล์สำรอง?\n${n} รอบ (${range})`)) return;
+    DB = db; snapIdx = -1; store('nw-snap', -1);
+    $('dataDlg').close();
+    await commit('กู้คืน ' + n + ' รอบแล้ว');
+  } catch (e) { toast(e.message, true); }
+}
+
+// ---------- calculations (in calc.js)
+const worthOf = s => worthIn(W(), s);
+const prevOf = i => prevIn(W(), i);
+const groupsOf = (s, withNew) => groupsIn(W(), s, withNew);
+const bankTotal = (s, name) => bankTotalIn(W(), s, name);
+
+// tooltip box; a node with data-px/py is placed at that fraction of the svg (donut segments)
+function chartBox(el, svg) {
+  el.innerHTML = '<div class="tip"></div>' + svg;
+  const tip = el.querySelector('.tip'), s = el.querySelector('svg');
+  el.querySelectorAll('[data-tip]').forEach(n => {
+    n.addEventListener('pointerenter', () => {
+      tip.innerHTML = n.dataset.tip;
+      const b = el.getBoundingClientRect();
+      let x, y;
+      if (n.dataset.px) { const r = s.getBoundingClientRect(); x = r.left - b.left + n.dataset.px * r.width; y = r.top - b.top + n.dataset.py * r.height; }
+      else { const r = n.getBoundingClientRect(); x = r.left - b.left + r.width / 2; y = r.top - b.top; }
+      tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.style.opacity = 1;
+    });
+    n.addEventListener('pointerleave', () => tip.style.opacity = 0);
+  });
+}
+
+function niceMax(v) {
+  const p = Math.pow(10, Math.floor(Math.log10(v || 1)));
+  for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * p >= v) return k * p;
+  return 10 * p;
+}
+
+// change vs the previous round; good=true means an increase is good news
+function delta(v, p, good, label) {
+  if (p == null) return '<span>ไม่มีข้อมูลรอบก่อน</span>';
+  const d = v - p;
+  if (Math.abs(d) < 0.5) return '<span>เท่ากับ ' + label + '</span>';
+  const pc = p ? ' ' + (Math.abs(d) / Math.abs(p) * 100).toFixed(1) + '%' : '';
+  return `<span class="${(d > 0) === good ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${baht(Math.abs(d))}${pc}</span> จาก ${label}`;
+}
+
+// ---------- overview
+function renderOverview(i) {
+  const snaps = W().snaps, s = snaps[i], c = worthOf(s), p = prevOf(i);
+  const pl = i ? snapLabel(snaps[i - 1].date) : 'ยอดยกมา', pby = p && p.by;
+  const card = (cls, icon, title, v, d) =>
+    `<div class="kpi ${cls}"><div class="t">${title}<span>${icon}</span></div><div class="v">${v}</div><div class="d">${d}</div></div>`;
+  // gross is shown on its own because a new debt makes the net change look smaller than what was saved
+  $('kpis').innerHTML =
+    card('green', '💰', 'ทรัพย์สินสุทธิ', baht(c.net), delta(c.net, p && p.net, true, pl)) +
+    card('blue', '🏦', 'ก่อนหักหนี้', baht(c.gross), delta(c.gross, p && p.gross, true, pl)) +
+    card('red', '📉', 'หนี้สิน', c.by.debt ? '−' + baht(c.by.debt) : '฿0', delta(c.by.debt, pby && pby.debt, false, pl)) +
+    card('orange', '🏠', 'ทรัพย์สินอื่น', baht(c.by.other), 'ไม่รวมในยอด • รวมทุกอย่าง ' + short(c.net + c.by.other));
+  $('hNote').hidden = !s.note;
+  $('hNote').textContent = s.note ? '📝 ' + s.note : '';
+  renderBars(i);
+  renderMix(i, c, pby, pl);
+
+  // one row per bank, coloured like its first kind; debt-only and other-only groups have their own cards below
+  const ps = i ? snaps[i - 1] : null;
+  $('bankSum').innerHTML = groupsOf(s).filter(g => g.rank === 1).map(g => {
+    const kinds = [...g.kinds], col = KINDS.find(x => x[0] === kinds[0])[2];
+    const d = ps ? g.total - bankTotal(ps, g.name) : 0, isNew = ps && !g.list.some(a => accVal(a, ps) != null);
+    const chip = isNew ? 'ใหม่' : ps && Math.abs(d) >= 0.5 ? chg(d) : 'เท่าเดิม';
+    return `<button class="tx" data-bank="${esc(g.name)}">
+      <div class="ic" style="background:${col}1A;color:${col}">${esc([...g.name][0])}</div>
+      <div class="n"><b title="${esc(g.name)}">${esc(g.name)}</b><span>${g.list.length} บัญชี • ${kinds.map(k => KINDS.find(x => x[0] === k)[1].split(' ')[0]).join(', ')}</span></div>
+      <div class="r"><b class="${g.total < 0 ? 'down' : ''}">${baht(g.total)}</b><span class="chip">${chip}</span></div></button>`;
+  }).join('') || '<div class="empty">ไม่มีบัญชีในรอบนี้</div>';
+
+  // debts and off-total assets: one card each, shown once they have ever been recorded
+  const side = (kind, card, total, meta, list) => {
+    const accs = W().accounts.filter(a => kindKey(a.kind) === kind);
+    $(card).hidden = !accs.some(a => snaps.some(x => x.v[a.id] != null));
+    $(total).textContent = (kind === 'debt' && c.by.debt ? '−' : '') + baht(c.by[kind]);
+    $(meta).innerHTML = delta(c.by[kind], pby && pby[kind], kind !== 'debt', pl);
+    $(list).innerHTML = accs.filter(a => accVal(a, s) != null).map(a => accRow(a, s, ps)).join('') || '<div class="empty">ไม่มีในรอบนี้</div>';
+  };
+  side('debt', 'debtCard', 'debtTotal', 'debtMeta', 'debtList');
+  side('other', 'otherCard', 'otherTotal', 'otherMeta', 'otherList');
+}
+
+// net worth per round: at most 12 bars, keeping the selected round in view
+function renderBars(i) {
+  const snaps = W().snaps, end = Math.max(i + 1, Math.min(snaps.length, 12)), start = Math.max(0, end - 12);
+  const Wd = 340, H = 210, L = 34, B = 30, T = 10, ih = H - B - T, list = snaps.slice(start, end).map(x => ({s: x, v: worthOf(x).net}));
+  const max = niceMax(Math.max(1, ...list.map(x => x.v)));
+  const gw = (Wd - L) / list.length, bw = Math.min(26, gw * 0.6);
+  let svg = '';
+  for (let k = 0; k <= 5; k++) {
+    const y = T + ih - ih * k / 5;
+    svg += `<line x1="${L}" x2="${Wd}" y1="${y}" y2="${y}" stroke="#F1F2F4"/><text x="${L - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="#9CA3AF">${short(max * k / 5)}</text>`;
+  }
+  list.forEach((x, j) => {
+    const k = start + j, cx = L + gw * j + gw / 2, on = k === i, h = Math.max(2, ih * Math.max(0, x.v) / max);
+    const d = new Date(x.s.date + 'T00:00'), yy = String(d.getFullYear() + 543).slice(2);
+    // month on the first line; the year only where it changes, so 12 labels still fit
+    const newYear = !j || snaps[k - 1].date.slice(0, 4) !== x.s.date.slice(0, 4);
+    svg += `<g data-j="${k}" style="cursor:pointer"><rect x="${cx - gw / 2}" y="${T}" width="${gw}" height="${ih}" fill="transparent"/>
+      <rect x="${cx - bw / 2}" y="${T + ih - h}" width="${bw}" height="${h}" rx="5" fill="${on ? '#16A34A' : '#E5E7EB'}"
+        data-tip="<b style='color:#16A34A'>${baht(x.v)}</b><span>${snapLabel(x.s.date)}</span>"/>
+      <text x="${cx}" y="${H - 16}" text-anchor="middle" font-size="${list.length > 6 ? 9 : 11}" fill="${on ? '#111827' : '#6B7280'}" font-weight="${on ? 600 : 400}">${TH_ABBR[d.getMonth()]}</text>
+      ${newYear || on ? `<text x="${cx}" y="${H - 4}" text-anchor="middle" font-size="9" fill="${on ? '#111827' : '#9CA3AF'}">${yy}</text>` : ''}</g>`;
+  });
+  chartBox($('bars'), `<svg viewBox="0 0 ${Wd} ${H}">${svg}</svg>`);
+  $('bars').querySelectorAll('g[data-j]').forEach(g => g.addEventListener('click', () => select(+g.dataset.j)));
+  // average growth per month from the first snapshot to the selected one
+  const s = snaps[i], months = (new Date(s.date) - new Date(snaps[0].date)) / 864e5 / 30.44;
+  const perMonth = months > 0 ? (worthOf(s).net - worthOf(snaps[0]).net) / months : 0;
+  $('trendFoot').innerHTML = months > 0
+    ? `เฉลี่ย <span class="${perMonth >= 0 ? 'up' : 'down'}">${perMonth >= 0 ? '+' : ''}${baht(perMonth)}</span>/เดือน ตั้งแต่ ${snapLabel(snaps[0].date)}` : '';
+}
+
+// asset mix donut (assets only; debt and other assets have their own cards)
+function renderMix(i, c, pby, pl) {
+  const kinds = ASSET_KINDS.filter(k => c.by[k] > 0).map(k => { const [, name, color] = KINDS.find(x => x[0] === k); return {k, name, color, v: c.by[k]}; })
+    .sort((a, b) => b.v - a.v);
+  $('catSnap').textContent = snapLabel(W().snaps[i].date);
+  $('catMeta').textContent = baht(c.gross) + ' ก่อนหักหนี้';
+  const VB = 200, cx = 100, r = 72, circ = 2 * Math.PI * r, gap = kinds.length > 1 ? 3 : 0;
+  let off = 0, svg = kinds.length ? '' : `<circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="#F1F2F4" stroke-width="26"/>`;
+  kinds.forEach(x => {
+    const len = x.v / c.gross * circ, a = (off + len / 2) / circ * 2 * Math.PI - Math.PI / 2;
+    svg += `<circle class="seg" cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${x.color}" stroke-width="26"
+      stroke-dasharray="${Math.max(len - gap, 0.1)} ${circ}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cx})"
+      data-tip="<b style='color:${x.color}'>${baht(x.v)}</b><span>${x.name}</span>" data-px="${(cx + r * Math.cos(a)) / VB}" data-py="${(cx + r * Math.sin(a)) / VB}"/>`;
+    off += len;
+  });
+  svg += `<text x="${cx}" y="${cx - 4}" text-anchor="middle" font-size="11" fill="#6B7280">ก่อนหักหนี้</text>
+        <text x="${cx}" y="${cx + 16}" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">${baht(c.gross)}</text>`;
+  chartBox($('donut'), `<svg viewBox="0 0 ${VB} ${VB}">${svg}</svg>`);
+  $('catList').innerHTML = kinds.map(x => `<div class="cat">
+      <div class="row"><i style="background:${x.color}"></i><span class="n">${x.name}${pby ? `<small>${chg(x.v - pby[x.k])}</small>` : ''}</span>
+        <span class="pct">${(x.v / c.gross * 100).toFixed(1)}%</span><span class="amt">${baht(x.v)}</span></div>
+      <div class="track"><div style="width:${x.v / c.gross * 100}%;background:${x.color}"></div></div></div>`).join('');
+  $('catFoot').innerHTML = pby ? delta(c.gross, sum(ASSET_KINDS, k => pby[k]), true, pl) : '';
+}
+
+// ---------- detail
+function renderDetail(i) {
+  const snaps = W().snaps, s = snaps[i], ps = i ? snaps[i - 1] : null;
+  // history table: bank totals per snapshot, banks in the order of the selected snapshot
+  const names = groupsOf(s).map(g => g.name);
+  snaps.forEach(x => groupsOf(x).forEach(g => { if (!names.includes(g.name)) names.push(g.name); }));
+  const fmt = v => v == null || Math.abs(v) < 0.5 ? '–' : Math.round(v).toLocaleString('th-TH');
+  const cls = j => j === i ? ' class="sel"' : '';
+  $('hist').innerHTML = `<table class="num"><thead><tr><th>ธนาคาร</th>${snaps.map((x, j) => `<th data-j="${j}"${cls(j)}>${snapLabel(x.date)}</th>`).join('')}</tr></thead><tbody>` +
+    names.map(n => `<tr><td>${esc(n)}</td>${snaps.map((x, j) => `<td${cls(j)}>${fmt(bankTotal(x, n))}</td>`).join('')}</tr>`).join('') +
+    `<tr class="tot"><td>ยอดสุทธิ</td>${snaps.map((x, j) => `<td${cls(j)}>${fmt(worthOf(x).net)}</td>`).join('')}</tr></tbody></table>`;
+
+  // one collapsible card per bank
+  const groups = groupsOf(s, true);
+  $('dMeta').textContent = `• ${groups.reduce((t, g) => t + g.list.length, 0)} บัญชี ใน ${groups.length} กลุ่ม`;
+  $('expandAll').textContent = groups.every(g => openBanks.has(g.name)) ? '▴ ย่อทั้งหมด' : '▾ เปิดทั้งหมด';
+  $('bankCards').innerHTML = groups.map(g => {
+    const d = ps ? g.total - bankTotal(ps, g.name) : 0;
+    return `<details class="card" data-name="${esc(g.name)}" ${openBanks.has(g.name) ? 'open' : ''}>
+      <summary><span class="chev">▶</span><span class="n">${esc(g.name)}<small>${g.list.map(a => esc(a.name)).join(' • ')}</small></span>
+        <b class="num ${g.total < 0 ? 'down' : ''}">${baht(g.total)}<small>${ps ? chg(d) : ''}</small></b></summary>
+      <div class="body">${g.list.map(a => accRow(a, s, ps)).join('')}</div></details>`;
+  }).join('') || '<div class="empty">ยังไม่มีบัญชี</div>';
+  $('bankCards').querySelectorAll('details').forEach(el => el.addEventListener('toggle', () => {
+    el.open ? openBanks.add(el.dataset.name) : openBanks.delete(el.dataset.name);
+    $('expandAll').textContent = [...$('bankCards').querySelectorAll('details')].every(x => x.open) ? '▴ ย่อทั้งหมด' : '▾ เปิดทั้งหมด';
+  }));
+}
+
+function accRow(a, s, ps) {
+  const v = accVal(a, s), sub = [];
+  if (a.unit && v != null) sub.push(esc(`${(+s.v[a.id]).toLocaleString('th-TH')} หน่วย × ${s.price}`));
+  if (a.note) sub.push(esc(a.note));
+  if (v != null && ps) {
+    const pv = accVal(a, ps), c = chg(v - (pv || 0), a.kind !== 'debt');
+    if (c) sub.push(c + (pv == null ? ' (ใหม่)' : ''));
+  }
+  return `<button class="kv" data-acc="${esc(a.id)}"><span>${esc(a.name)}${sub.length ? `<small>${sub.join(' • ')}</small>` : ''}</span>
+    <b class="num ${a.kind === 'debt' ? 'down' : ''}">${v == null ? '<small>ยังไม่มียอด</small>' : (a.kind === 'debt' ? '−' : '') + baht(v)}</b></button>`;
+}
+
+function render() {
+  const snaps = W().snaps;
+  $('vOverview').hidden = view !== 'overview'; $('vDetail').hidden = view !== 'detail';
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+  $('snapSel').innerHTML = snaps.map((s, j) => `<option value="${j}">${snapLabel(s.date)}</option>`).join('');
+  $('snapSel').hidden = $('snapEdit').hidden = $('shareBtn').hidden = !snaps.length;
+  if (!snaps.length) {
+    $('sub').textContent = 'ยังไม่ได้จดยอด • เพิ่มบัญชีที่หน้า "รายละเอียด" แล้วกด ＋';
+    ['kpis', 'bars', 'trendFoot', 'catSnap', 'catMeta', 'donut', 'catList', 'catFoot', 'bankSum', 'hist'].forEach(id => $(id).innerHTML = '');
+    $('hNote').hidden = $('debtCard').hidden = $('otherCard').hidden = true;
+    $('bankCards').innerHTML = W().accounts.map(a => accRow(a, {v: {}}, null)).join('') || '<div class="empty">ยังไม่มีบัญชี กด ＋ บัญชี</div>';
+    return;
+  }
+  const i = curIdx();
+  $('snapSel').value = i;
+  $('shareBtn').href = 'summary.html?m=' + snaps[i].date.slice(0, 7);
+  $('sub').textContent = `ณ ${snapLabel(snaps[i].date)} • จดไว้ ${snaps.length} รอบ`;
+  if (view === 'overview') renderOverview(i); else renderDetail(i);
+}
+
+function select(i) {
+  snapIdx = i === W().snaps.length - 1 ? -1 : i;  // stay on "latest" so a new round shows up next time
+  store('nw-snap', snapIdx);
+  render();
+}
+function setView(v, bank) {
+  view = v; store('nw-view', v);
+  if (bank) openBanks.add(bank);
+  render();
+  if (bank) {
+    const el = [...$('bankCards').querySelectorAll('details')].find(x => x.dataset.name === bank);
+    if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+  } else window.scrollTo({top: 0});
+}
+
+// ---------- snapshot editor (a new snapshot starts from the latest one's figures)
+const fillSelect = (sel, opts) => sel.innerHTML = opts.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+const snapForm = $('snapForm');
+let editingSnap = null;
+function openSnap(i) {
+  const w = W(), last = w.snaps.at(-1), s = i != null ? w.snaps[i] : {date: today(), price: last ? last.price : '', v: last ? last.v : {}};
+  editingSnap = i;
+  snapForm.date.value = s.date; snapForm.price.value = s.price ?? ''; snapForm.note.value = i != null ? s.note || '' : '';
+  let html = '', bank = null;
+  w.accounts.forEach(a => {
+    if (a.bank !== bank) { bank = a.bank; html += `<h4>${esc(bank)}</h4>`; }
+    html += `<span>${esc(a.name)}${a.unit ? ' <small>(หน่วย)</small>' : ''}${a.kind === 'debt' ? ' <small>(หนี้)</small>' : ''}</span>
+      <input data-a="${esc(a.id)}" inputmode="decimal" autocomplete="off" value="${s.v[a.id] ?? ''}">`;
+  });
+  $('snapGrid').innerHTML = html || '<div class="empty" style="grid-column:1/-1">ยังไม่มีบัญชี กด ＋ บัญชี ก่อน</div>';
+  $('snapTitle').textContent = i != null ? '✏️ แก้ยอดรอบ ' + snapLabel(s.date) : '＋ จดยอดรอบใหม่';
+  $('snapDel').style.display = i != null ? '' : 'none';
+  $('snapDlg').showModal();
+}
+snapForm.addEventListener('submit', e => {
+  if (e.submitter && e.submitter.value !== 'ok') return;
+  const date = snapForm.date.value, price = snapForm.price.value ? evalAmount(snapForm.price.value) : 0, v = {};
+  if (!date) { e.preventDefault(); toast('ใส่วันที่', true); return; }
+  if (Number.isNaN(price)) { e.preventDefault(); toast('ราคา WESOP ต้องเป็นตัวเลข', true); return; }
+  for (const inp of $('snapGrid').querySelectorAll('input[data-a]')) {
+    if (!inp.value.trim()) continue;
+    const x = evalAmount(inp.value);
+    if (Number.isNaN(x)) { e.preventDefault(); inp.setCustomValidity('ต้องเป็นตัวเลข'); inp.reportValidity(); return; }
+    v[inp.dataset.a] = x;
+  }
+  const s = {date, price, v}, note = snapForm.note.value.trim();
+  if (note) s.note = note;
+  const snaps = W().snaps;
+  if (editingSnap != null) snaps[editingSnap] = s; else snaps.push(s);
+  snaps.sort((a, b) => a.date.localeCompare(b.date));
+  const k = snaps.indexOf(s);
+  snapIdx = k === snaps.length - 1 ? -1 : k;
+  commit(editingSnap != null ? 'บันทึกยอดแล้ว' : 'จดยอดรอบใหม่แล้ว');
+});
+$('snapGrid').addEventListener('input', e => e.target.setCustomValidity && e.target.setCustomValidity(''));
+$('snapDel').addEventListener('click', () => {
+  if (!confirm('ลบยอดรอบนี้ทั้งรอบ?')) return;
+  W().snaps.splice(editingSnap, 1);
+  snapIdx = -1;
+  $('snapDlg').close();
+  commit('ลบรอบแล้ว');
+});
+
+// ---------- account editor
+const accForm = $('accForm');
+let editingAcc = null;
+fillSelect(accForm.kind, KINDS.map(k => [k[0], k[1]]));
+function openAcc(id) {
+  const a = id ? W().accounts.find(x => x.id === id) : {bank: '', name: '', kind: 'cash'};
+  editingAcc = id;
+  accForm.bank.value = a.bank; accForm.name.value = a.name; accForm.kind.value = kindKey(a.kind);
+  accForm.note.value = a.note || ''; accForm.unit.checked = !!a.unit;
+  $('accTitle').textContent = id ? '✏️ แก้ไขบัญชี' : '＋ บัญชีใหม่';
+  $('accDel').style.display = id ? '' : 'none';
+  $('accDlg').showModal();
+}
+accForm.addEventListener('submit', e => {
+  if (e.submitter && e.submitter.value !== 'ok') return;
+  const bank = accForm.bank.value.trim(), name = accForm.name.value.trim();
+  if (!bank || !name) { e.preventDefault(); toast('ใส่ธนาคารและชื่อบัญชี', true); return; }
+  const a = {id: editingAcc || 'a' + Date.now().toString(36), bank, name, kind: accForm.kind.value};
+  if (accForm.unit.checked) a.unit = true;
+  if (accForm.note.value.trim()) a.note = accForm.note.value.trim();
+  const list = W().accounts, i = list.findIndex(x => x.id === editingAcc);
+  if (i >= 0) list[i] = a;
+  else {
+    // keep accounts of the same bank together
+    const j = list.map(x => x.bank).lastIndexOf(bank);
+    list.splice(j >= 0 ? j + 1 : list.length, 0, a);
+  }
+  openBanks.add(bank);
+  commit('บันทึกบัญชีแล้ว');
+});
+$('accDel').addEventListener('click', () => {
+  const n = W().snaps.filter(s => s.v[editingAcc] != null).length;
+  if (n) return toast(`บัญชีนี้มียอดอยู่ใน ${n} รอบ ลบไม่ได้ (ถ้าปิดบัญชีแล้ว รอบใหม่เว้นว่างไว้ได้เลย)`, true);
+  if (!confirm('ลบบัญชีนี้?')) return;
+  W().accounts = W().accounts.filter(a => a.id !== editingAcc);
+  $('accDlg').close();
+  commit('ลบบัญชีแล้ว');
+});
+
+// ---------- CSV export: one row per account, one column per snapshot (BOM so Excel reads Thai correctly)
+$('csvAll').addEventListener('click', () => {
+  const w = W(), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const kindName = k => KINDS.find(x => x[0] === kindKey(k))[1];
+  const rows = [['ธนาคาร', 'บัญชี', 'ประเภท', ...w.snaps.map(s => s.date)]]
+    .concat(w.accounts.map(a => [a.bank, a.name, kindName(a.kind), ...w.snaps.map(s => { const v = accVal(a, s); return v == null ? '' : signed(a, v); })]))
+    .concat([['', 'ยอดสุทธิ', '', ...w.snaps.map(s => worthOf(s).net)]]);
+  const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(',')).join('\r\n')], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'ทรัพย์สินสุทธิ.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+// ---------- wiring
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+$('snapSel').addEventListener('change', e => select(+e.target.value));
+$('snapNew').addEventListener('click', () => DB && openSnap(null));
+$('quickAdd').addEventListener('click', () => DB && openSnap(null));
+$('snapEdit').addEventListener('click', () => DB && openSnap(curIdx()));
+$('accNew').addEventListener('click', () => DB && openAcc(null));
+$('expandAll').addEventListener('click', () => {
+  const els = [...$('bankCards').querySelectorAll('details')], open = !els.every(x => x.open);
+  els.forEach(x => x.open = open);
+});
+$('dataBtn').addEventListener('click', () => DB && openData());
+$('backupBtn').addEventListener('click', doBackup);
+$('restoreBtn').addEventListener('click', () => $('restoreFile').click());
+$('restoreFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) doRestore(f); });
+document.addEventListener('click', e => {
+  if (!DB) return;
+  const act = e.target.closest('[data-act]');
+  if (act && act.dataset.act === 'backup') return doBackup();
+  if (act && act.dataset.act === 'restore') return $('restoreFile').click();
+  const v = e.target.closest('[data-view]'); if (v) return setView(v.dataset.view);
+  const b = e.target.closest('[data-bank]'); if (b) return setView('detail', b.dataset.bank);
+  const a = e.target.closest('[data-acc]'); if (a) return openAcc(a.dataset.acc);
+  const th = e.target.closest('th[data-j]'); if (th) return select(+th.dataset.j);
+});
+
+load();
+</script>
+</body>
+</html>

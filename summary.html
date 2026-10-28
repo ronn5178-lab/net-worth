@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สรุปทรัพย์สินสุทธิ</title>
+<meta name="theme-color" content="#ECEEF1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#ECEEF1; --card:#fff; --ink:#111827; --ink2:#374151; --muted:#6B7280; --faint:#9CA3AF; --line:#F1F2F4;
+  --green:#16A34A; --green-bg:#F0FDF4; --red:#DC2626; --red-bg:#FEF2F2;
+  --acc1:#4F8A8B; --acc2:#2F5F6B; --nav:#1C1C1E;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans Thai','Leelawadee UI',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;font-size:14px}
+button,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.up{color:var(--green)} .down{color:var(--red)}
+
+.bar{max-width:760px;margin:0 auto;padding:16px 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bar .grow{flex:1}
+.add{border:1px solid #E2E4E8;background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;cursor:pointer;
+  white-space:nowrap;color:inherit;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.add:hover{background:#F7F8FA}
+.add.dark{background:var(--nav);border-color:var(--nav);color:#fff}
+.pill{appearance:none;border:1px solid #E2E4E8;background:#fff;border-radius:999px;
+  padding:7px 32px 7px 14px;font-size:13px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23111' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center}
+
+/* the page that becomes the image / PDF */
+.sheet{max-width:760px;margin:12px auto 40px;background:var(--card);border-radius:20px;padding:28px;
+  box-shadow:0 1px 3px rgba(17,24,39,.06)}
+.top{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:700;
+  background:linear-gradient(135deg,var(--acc1),var(--acc2));color:#fff;flex:none}
+.top h1{font-size:18px;margin:0;font-weight:600}
+.top .sub{color:var(--muted);font-size:12.5px}
+.hero{margin-top:20px}
+.hero .l{color:var(--muted);font-size:12.5px}
+.hero .v{font-size:44px;font-weight:700;color:var(--green);letter-spacing:-1px;line-height:1.25}
+.hero .d{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.stat{background:#F7F8FA;border-radius:12px;padding:10px 12px;min-width:0}
+.stat .l{font-size:11.5px;color:var(--muted)}
+.stat .v{font-weight:700;font-size:16px;margin-top:2px}
+.stat .d{font-size:11px;color:var(--muted)}
+.chart{margin-top:16px}
+.chart svg{width:100%;height:auto;display:block}
+svg text{font-family:inherit}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:20px}
+h2{font-size:14px;font-weight:600;margin:0 0 6px}
+.stack{display:flex;height:12px;border-radius:99px;overflow:hidden;margin:10px 0 4px;gap:2px;background:var(--line)}
+.lg{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;border-bottom:1px dashed #ECEEF1}
+.lg:last-child{border-bottom:0}
+.lg i{width:10px;height:10px;border-radius:3px;flex:none}
+.lg .n{flex:1;min-width:0}
+.lg .p{color:var(--muted);font-size:12px;width:40px;text-align:right}
+.lg b{font-weight:600;text-align:right;white-space:nowrap}
+.lg.sep{border-top:1px solid #E6E8EC;margin-top:4px}
+.lg small{display:block;font-size:11px;font-weight:400}
+.note{font-size:12px;color:var(--muted);background:#F7F8FA;border-radius:10px;padding:8px 10px;margin-top:18px;line-height:1.55}
+.foot{color:var(--faint);font-size:11px;margin-top:16px;text-align:right}
+.empty{color:var(--muted);text-align:center;padding:40px 0}
+
+@media (max-width:600px){
+  .sheet{padding:18px;border-radius:16px}
+  .hero .v{font-size:34px}
+  .cols{grid-template-columns:1fr}
+  .stat{padding:8px} .stat .v{font-size:14px}
+}
+@page{size:A4;margin:10mm}
+@media print{
+  body{background:#fff}
+  .bar{display:none}
+  .sheet{margin:0;max-width:none;box-shadow:none;padding:0}
+  /* keep everything on one A4 page */
+  .hero{margin-top:12px} .hero .v{font-size:38px}
+  .chart{margin-top:10px} .cols{margin-top:12px}
+  .lg{padding:4px 0;font-size:12.5px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="add" href="./">← กลับ</a>
+  <span class="grow"></span>
+  <select class="pill" id="mSel" aria-label="เลือกเดือน"></select>
+  <button class="add" id="pngBtn">🖼️ บันทึกรูป</button>
+  <button class="add dark" id="pdfBtn">📄 PDF</button>
+</div>
+<div class="sheet" id="sheet"><div class="empty">กำลังโหลด…</div></div>
+
+<script src="calc.js"></script>
+<script src="store.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const short = n => Math.abs(n) >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M'
+  : Math.abs(n) >= 1000 ? Math.round(n / 1000) + 'K' : String(Math.round(n));
+const chg = (d, good = true) => Math.abs(d) < 0.5 ? '' :
+  `<span class="${(d > 0) === good ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${baht(Math.abs(d))}</span>`;
+const thMonth = m => TH_ABBR[+m.slice(5) - 1] + ' ' + String(+m.slice(0, 4) + 543).slice(2);
+let w = null, month = '';
+
+// ?m=YYYY-MM → the last snapshot recorded on or before the end of that month
+function pick(m) {
+  let i = -1;
+  w.snaps.forEach((s, j) => { if (s.date.slice(0, 7) <= m) i = j; });
+  return i;
+}
+
+function render() {
+  const sheet = $('sheet'), i = pick(month);
+  if (i < 0) { sheet.innerHTML = `<div class="empty">ยังไม่มียอดที่จดไว้ถึงเดือน ${esc(thMonth(month))}</div>`; return; }
+  const snaps = w.snaps, s = snaps[i], c = worthIn(w, s), p = prevIn(w, i), label = i ? 'รอบก่อน (' + snapLabel(snaps[i - 1].date) + ')' : 'ยอดยกมา';
+  document.title = 'สรุปทรัพย์สินสุทธิ ' + snapLabel(s.date);
+
+  const stat = (l, v, d, cls = '') => `<div class="stat"><div class="l">${l}</div><div class="v num ${cls}">${v}</div><div class="d">${d}</div></div>`;
+  const pby = i ? worthIn(w, snaps[i - 1]).by : null;
+  const row = (k, extra = '') => {
+    const [, name, col] = KINDS.find(x => x[0] === k), v = c.by[k];
+    const pct = ASSET_KINDS.includes(k) && c.gross ? (v / c.gross * 100).toFixed(0) + '%' : '';
+    return `<div class="lg ${extra}"><i style="background:${col}"></i><span class="n">${name}${pby ? `<small>${chg(v - pby[k], k !== 'debt')}</small>` : ''}</span>
+      <span class="p">${pct}</span><b class="num ${k === 'debt' ? 'down' : ''}">${k === 'debt' && v ? '−' : ''}${baht(v)}</b></div>`;
+  };
+  const extras = ['debt', 'other'].filter(k => c.by[k] || (pby && pby[k]));
+  const ps = i ? snaps[i - 1] : null;
+  const banks = groupsIn(w, s).map(g => `<div class="lg"><span class="n">${esc(g.name)}${ps ? `<small>${chg(g.total - bankTotalIn(w, ps, g.name))}</small>` : ''}</span>
+    <b class="num ${g.total < 0 ? 'down' : ''}">${baht(g.total)}</b></div>`).join('');
+  const months = (new Date(s.date) - new Date(snaps[0].date)) / 864e5 / 30.44;
+  const perMonth = months > 0 ? (c.net - worthIn(w, snaps[0]).net) / months : 0;
+
+  sheet.innerHTML = `
+    <div class="top"><div class="logo">฿</div><div><h1>ทรัพย์สินสุทธิ</h1>
+      <div class="sub">ณ ${snapLabel(s.date)}${s.date.slice(0, 7) !== month ? ` (ยอดล่าสุดที่จดไว้ถึง ${thMonth(month)})` : ''}</div></div></div>
+    <div class="hero">
+      <div class="v num">${baht(c.net)}</div>
+      <div class="d">${p ? `${chg(c.net - p.net) || 'เท่าเดิม'} จาก${label} (${((c.net - p.net) / p.net * 100).toFixed(1)}%)` : ''}</div>
+    </div>
+    <div class="stats">
+      ${stat('ก่อนหักหนี้', baht(c.gross), p ? chg(c.gross - p.gross) || 'เท่าเดิม' : '')}
+      ${stat('หนี้สิน', c.by.debt ? '−' + baht(c.by.debt) : '฿0', p && p.by ? chg(c.by.debt - p.by.debt, false) || 'เท่าเดิม' : '', c.by.debt ? 'down' : '')}
+      ${stat('เฉลี่ยต่อเดือน', months > 0 ? (perMonth >= 0 ? '+' : '') + baht(perMonth) : '–', months > 0 ? 'ตั้งแต่ ' + snapLabel(snaps[0].date) : '', perMonth < 0 ? 'down' : '')}
+    </div>
+    <div class="chart">${trend(i)}</div>
+    <div class="cols">
+      <div>
+        <h2>สัดส่วนทรัพย์สิน</h2>
+        <div class="stack">${ASSET_KINDS.filter(k => c.by[k]).map(k => `<div style="width:${c.by[k] / c.gross * 100}%;background:${KINDS.find(x => x[0] === k)[2]}"></div>`).join('')}</div>
+        ${ASSET_KINDS.filter(k => c.by[k] || (pby && pby[k])).map(k => row(k)).join('')}${extras.map((k, j) => row(k, j ? '' : 'sep')).join('')}
+      </div>
+      <div><h2>ตามธนาคาร / กลุ่ม</h2>${banks}</div>
+    </div>
+    ${s.note ? `<div class="note">📝 ${esc(s.note)}</div>` : ''}
+    <div class="foot">ยอดสุทธิ = สด + หุ้น/กองทุน + สลาก + ออมบริษัท − หนี้สิน • ทรัพย์สินอื่นไม่รวมในยอด</div>`;
+}
+
+// net worth up to the chosen snapshot, fixed width so the image looks the same on any screen
+function trend(i) {
+  const opening = +w.opening || 0;
+  const pts = (opening ? [{l: 'ยกมา', v: opening}] : []).concat(w.snaps.slice(0, i + 1).map(x => ({l: snapLabel(x.date), v: worthIn(w, x).net})));
+  if (pts.length < 2) return '';
+  const Wd = 700, H = 170, L = 44, R = 30, B = 24, T = 12, ih = H - B - T;
+  const lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v)), pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.1 || 1;
+  const min = lo - pad, max = hi + pad;
+  const X = k => L + (Wd - L - R) * k / (pts.length - 1), Y = v => T + ih - ih * (v - min) / (max - min);
+  let svg = '';
+  for (let g = 0; g <= 3; g++) {
+    const v = min + (max - min) * g / 3, y = Y(v);
+    svg += `<line x1="${L}" x2="${Wd}" y1="${y}" y2="${y}" stroke="#F1F2F4"/><text x="${L - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#9CA3AF">${short(v)}</text>`;
+  }
+  const line = pts.map((p, k) => X(k) + ',' + Y(p.v)).join(' '), last = pts.length - 1;
+  svg += `<polygon points="${X(0)},${T + ih} ${line} ${X(last)},${T + ih}" fill="#16A34A" opacity=".07"/>`;
+  svg += `<polyline points="${line}" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linejoin="round"/>`;
+  pts.forEach((p, k) => {
+    const on = k === last;
+    svg += `<text x="${X(k)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="${on ? '#111827' : '#6B7280'}" font-weight="${on ? 600 : 400}">${p.l}</text>
+      <circle cx="${X(k)}" cy="${Y(p.v)}" r="${on ? 6 : 4}" fill="${on ? '#16A34A' : '#fff'}" stroke="#16A34A" stroke-width="2"/>`;
+  });
+  return `<svg viewBox="0 0 ${Wd} ${H}">${svg}</svg>`;
+}
+
+async function load() {
+  try {
+    w = ((await Store.load()) || Store.empty()).worth;
+  } catch (e) {
+    $('sheet').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้: ' + esc(e.message) + '</div>';
+    return;
+  }
+  const ms = [...new Set(w.snaps.map(s => s.date.slice(0, 7)))];
+  const q = new URLSearchParams(location.search).get('m');
+  month = /^\d{4}-\d{2}$/.test(q || '') ? q : ms.at(-1) || '';
+  if (month && !ms.includes(month)) ms.push(month), ms.sort();
+  $('mSel').innerHTML = ms.map(m => `<option value="${m}">${thMonth(m)}</option>`).join('');
+  $('mSel').value = month;
+  render();
+}
+
+$('mSel').addEventListener('change', e => {
+  month = e.target.value;
+  history.replaceState(null, '', 'summary.html?m=' + month);
+  render();
+});
+$('pdfBtn').addEventListener('click', () => window.print());  // เลือก "บันทึกเป็น PDF" ในหน้าพิมพ์
+
+// html2canvas is only loaded when the image is actually needed
+$('pngBtn').addEventListener('click', async () => {
+  const btn = $('pngBtn'), txt = btn.textContent;
+  btn.disabled = true; btn.textContent = 'กำลังสร้างรูป…';
+  try {
+    if (!window.html2canvas) await new Promise((ok, bad) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      sc.onload = ok; sc.onerror = () => bad(new Error('โหลดตัวสร้างรูปไม่ได้ (ต้องต่ออินเทอร์เน็ต)'));
+      document.head.appendChild(sc);
+    });
+    await document.fonts.ready;
+    const canvas = await html2canvas($('sheet'), {scale: 2, backgroundColor: '#ffffff'});
+    const blob = await new Promise(ok => canvas.toBlob(ok, 'image/png'));
+    const name = 'สรุปทรัพย์สิน-' + month + '.png', file = new File([blob], name, {type: 'image/png'});
+    // phones get the share sheet (LINE etc.), desktops get a download
+    if (navigator.canShare && navigator.canShare({files: [file]}) && /Mobi|Android/i.test(navigator.userAgent)) {
+      await navigator.share({files: [file], title: document.title});
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') alert('บันทึกรูปไม่สำเร็จ: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = txt;
+  }
+});
+
+load();
+</script>
+</body>
+</html>
